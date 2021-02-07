@@ -1,5 +1,5 @@
-import React from 'react'
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native'
+import React, {useEffect} from 'react'
+import { View, Text, TextInput, Button, StyleSheet, BackHandler } from 'react-native'
 import { useDispatch, useSelector } from "react-redux";
 import { userName } from "../redux/actions/user";
 
@@ -7,9 +7,20 @@ const SettingScreen = () => {
     const name = useSelector(state => state.user.name);
     const dispatch = useDispatch();
     const [text, onChangeText] = React.useState('');
-    const onSubmit = async() => {
-        await dispatch(userName(text))
+    const onSubmit = () => {
+        dispatch(userName(text))
     }
+    const onBackPress=()=>{
+        dispatch(userName(''))
+        onChangeText('')
+    }
+    useEffect(() => {
+        BackHandler.addEventListener('hardwareBackPress', onBackPress);
+        return () => {
+            dispatch(userName(''))
+            BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+        }
+    }, [text])
     return (
         <>
         <View style={styles.mainContainer}>
@@ -19,6 +30,7 @@ const SettingScreen = () => {
                 style={styles.container}
                 onChangeText={(text) => onChangeText(text)}
                 maxLength= {30}
+                value={text}
                 placeholder={'Enter Name'}
             />
             <Button
